@@ -36,17 +36,21 @@ export default class Counter extends HTMLElement{
             background: #cccccc;
         }
     `
-    template = () => `
-        <div class="value">0</div>
+    template = () => {
+        
+    return `
+        <div class="value">${this.value}</div>
         <div class="buttons">
             <button type="button" class="button button--increment">+</button>
             <button type="button" class="button button--decrement">-</button>
         </div>
     `;
+    }
     
     constructor(){
         // if we define a constructor its important to call the super constructor
         super();
+        this.value = 0;
         //this will be allowing user to upload elements in the shadow dom
         this.attachShadow({ mode: "open"});
         this.render();
@@ -57,5 +61,17 @@ export default class Counter extends HTMLElement{
         this.shadowRoot.innerHTML = `
         <style>${this.css.trim()}</style>
         ${this.template().trim()}`
+        this.shadowRoot.querySelector(".button--increment").addEventListener('click',this.onIncrementButtonClick);
+        this.shadowRoot.querySelector(".button--decrement").addEventListener('click',this.onDecrementButtonClick);
+    }
+
+    onIncrementButtonClick = () => {
+        this.value++;
+        this.render();
+    }
+
+    onDecrementButtonClick = () => {
+        this.value= Math.max(0,this.value-1);
+        this.render();
     }
 }
