@@ -1,12 +1,15 @@
 import { LitElement, html, css } from 'lit';
-import './components/expenseList.js';
-import './components/addExpense.js';
-import './components/expenseSummary.js';
+import './components/ExpenseList.js';
+import './components/AddExpense.js';
+import './components/ExpenseSummary.js';
+import './components/FilterExpenses.js';
 
 class ExpenseTracker extends LitElement {
   static properties = {
     expenses: { type: Array },
-    total: { type: Number }
+    filteredExpenses: { type: Array },
+    total: { type: Number },
+    minAmount: { type: Number }
   };
 
   static styles = css`
@@ -21,16 +24,24 @@ class ExpenseTracker extends LitElement {
   constructor() {
     super();
     this.expenses = [];
+    this.filteredExpenses = [];
     this.total = 0;
+    this.minAmount = 0;
   }
 
   addExpense(expense) {
     this.expenses = [...this.expenses, expense];
+    this.filterExpenses(this.minAmount);
     this.calculateTotal();
   }
 
+  filterExpenses(minAmount) {
+    this.minAmount = minAmount;
+    this.filteredExpenses = this.expenses.filter(expense => expense.amount >= minAmount);
+  }
+
   calculateTotal() {
-    this.total = this.expenses.reduce((acc, expense) => acc + expense.amount, 0);
+    this.total = this.filteredExpenses.reduce((acc, expense) => acc + expense.amount, 0);
   }
 
   render() {
@@ -38,7 +49,8 @@ class ExpenseTracker extends LitElement {
       <div class="container">
         <h1>Expense Tracker</h1>
         <add-expense .onAddExpense=${this.addExpense.bind(this)}></add-expense>
-        <expense-list .expenses=${this.expenses}></expense-list>
+        <filter-expenses .minAmount=${this.minAmount} .onFilterChange=${this.filterExpenses.bind(this)}></filter-expenses>
+        <expense-list .expenses=${this.filteredExpenses}></expense-list>
         <expense-summary .total=${this.total}></expense-summary>
       </div>
     `;
